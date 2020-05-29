@@ -12,13 +12,16 @@ library(tidyr)
 
   #Load the test set 
 test <- read.csv("data\\test\\X_test.txt", header = FALSE, sep = "")
-
+subj_test <-read.csv("data\\test\\subject_test.txt", header = FALSE, sep = "")
+test <- bind_cols(subj_test,test)
   #Load the train set
 train <- read.csv("data\\train\\X_train.txt", header = FALSE, sep = "")
-
+subj_train <-read.csv("data\\train\\subject_train.txt", header = FALSE, sep = "")
+train <- bind_cols(subj_train, train)
   #Load the column names
 ColN <- read.csv("data\\features.txt", header = FALSE, sep = "")
 ColNames <- ColN$V2
+ColNames <- c("subject", ColNames)
   #Merging test and train set
 data1 <- bind_rows(test, train)
 names(data1) <- ColNames
@@ -57,7 +60,9 @@ for (num in lab$V1) { data1$Act_label[data1$activity == num] <- lab[num,2]}
 
 # Task 5
   #Adding new column sub_avg for the mean of each subject
-data1$sub_avg <- rowMeans(data1[,2:562])
+
   
   #creating new dataset that have the average for each activity and each variable
-new_data <- data1 %>% group_by(Act_label) %>% summarize_if(is.numeric, mean)
+new_data <- data1 %>% group_by(Act_label,subject) %>% summarize_if(is.numeric, mean)
+
+write.table(new_data, 'tidy_data.txt', row.names = FALSE)
